@@ -15,12 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const src_1 = require("../src");
 const API_URL = new src_1.InjectionToken("API_URL");
 let Logger = class Logger {
+    constructor() {
+        console.log("Creating Logger");
+    }
     log(message) {
         console.log(`[LOG]: ${message}`);
     }
 };
 Logger = __decorate([
-    (0, src_1.Injectable)()
+    (0, src_1.Injectable)(),
+    (0, src_1.Singleton)(),
+    __metadata("design:paramtypes", [])
 ], Logger);
 let ApiClient = class ApiClient {
     baseUrl;
@@ -76,11 +81,9 @@ const container = new src_1.Container();
 container.register(API_URL, {
     useValue: "https://api.example.com"
 });
-container.register(Logger, {
-    useClass: Logger,
-    scope: 'singleton'
-});
+container.register(Logger);
 container.register(ApiClient);
 container.register(UserRepository);
 container.register(UserService);
 const userService = container.resolve(UserService);
+userService.getUser(1);

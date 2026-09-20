@@ -13,8 +13,7 @@ class Container {
                 throw new Error(`Provider is required for ${this.tokenToString(token)}`);
             }
             this.registry.set(token, {
-                useClass: token,
-                scope: 'transient'
+                useClass: token
             });
             return;
         }
@@ -46,7 +45,7 @@ class Container {
         if ("useValue" in provider) {
             return provider.useValue;
         }
-        const scope = provider.scope ?? 'transient';
+        const scope = this.getScope(provider);
         if (scope === 'singleton' && this.instances.has(token)) {
             return this.instances.get(token);
         }
@@ -75,6 +74,18 @@ class Container {
         const paramTypes = Reflect.getMetadata("design:paramtypes", target) ?? [];
         const injectedTokens = Reflect.getOwnMetadata(keys_1.INJECT_TOKENS, target) ?? {};
         return paramTypes.map((paramType, index) => injectedTokens[index] ?? paramType);
+    }
+    getScope(provider) {
+        if ("useValue" in provider) {
+            return 'singleton';
+        }
+        if (provider.scope) {
+            return provider.scope;
+        }
+        if ("useClass" in provider) {
+            return (Reflect.getMetadata(keys_1.INJECTABLE_SCOPE, provider.useClass) ?? 'transient');
+        }
+        return "transient";
     }
     createCircularDependencyMessage(chain, repeatedToken) {
         const cycleStart = chain.indexOf(repeatedToken);

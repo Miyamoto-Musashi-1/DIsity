@@ -1,6 +1,6 @@
-import { INJECT_TOKENS } from './metadata/keys'
+import { INJECT_TOKENS, INJECTABLE_SCOPE } from './metadata/keys'
 import { ResolutionContext } from './resolution-context'
-import { type Constructor, type Token, type Provider, InjectionToken } from './types'
+import { type Constructor, type Token, type Provider, InjectionToken, Scope } from './types'
 
 export class Container {
     private registry = new Map<Token<any>, Provider<any>>()
@@ -27,8 +27,7 @@ export class Container {
             }
 
             this.registry.set(token, {
-                useClass: token,
-                scope: 'transient'
+                useClass: token
             })
 
             return
@@ -37,7 +36,7 @@ export class Container {
         this.registry.set(token, provider)
     }
 
-    resolve<T>(token: Token<T>) {
+    resolve<T>(token: Token<T>): T {
         const context: ResolutionContext = {
             chain: []
         }
@@ -45,8 +44,8 @@ export class Container {
         return this.resolveToken(token, context)
     }
 
-    resolveToken<T>(
-        token: Token,
+    private resolveToken<T>(
+        token: Token<T>,
         context: ResolutionContext
     ): T {
         if (context.chain.includes(token)) {
@@ -61,7 +60,7 @@ export class Container {
         context.chain.push(token)
 
         try {
-            return this.resolveProvider(
+            return this.resolveProvider<T>(
                 token,
                 context
             )
@@ -73,7 +72,7 @@ export class Container {
     private resolveProvider<T>(
         token: Token<T>,
         context: ResolutionContext
-    ) {
+    ): T {
         const provider = this.registry.get(token)
 
         if (!provider) {
@@ -86,7 +85,7 @@ export class Container {
             return provider.useValue
         }
 
-        const scope = provider.scope ?? 'transient'
+        const scope = this.getScope(provider);
 
         if (scope === 'singleton' && this.instances.has(token)) {
             return this.instances.get(token)
@@ -155,6 +154,29 @@ export class Container {
             (paramType: Token, index: number) => 
                 injectedTokens[index] ?? paramType
         )
+    }
+
+    getScope(
+        provider: Provider<any>
+    ): Scope {
+        if ("useValue" in provider) {
+            return 'singleton'
+        }
+
+        if (provider.scope) {
+            return provider.scope
+        }
+
+        if ("useClass" in provider) {
+            return (
+                Reflect.getMetadata(
+                    INJECTABLE_SCOPE,
+                    provider.useClass,
+                ) ?? 'transient'
+            )
+        }
+
+        return "transient"
     }
 
     private createCircularDependencyMessage(

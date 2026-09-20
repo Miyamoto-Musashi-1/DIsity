@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 
-
 export { Container } from "./container"
 
 export { 
@@ -9,6 +8,9 @@ export {
 
 export { Injectable } from './decorators/injectable'
 export { Inject } from './decorators/inject'
+
+export { Singleton } from './decorators/singleton'
+export { Transient } from './decorators/transient'
 
 export type {
     Constructor,

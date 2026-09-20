@@ -1,0 +1,19 @@
+{
+  "name": "disity",
+  "version": "1.0.0",
+  "description": "DIsity is a lightweight inversion of control (IoC) container for TypeScript and JavaScript apps",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.2.2"
+  }
+}

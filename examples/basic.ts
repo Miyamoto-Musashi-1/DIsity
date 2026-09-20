@@ -1,0 +1,70 @@
+import { Container, InjectionToken, Injectable, Inject } from "../src";
+import { INJECT_TOKENS } from "../src/metadata/keys";
+
+const API_URL = new InjectionToken<string>("API_URL")
+
+@Injectable()
+class Logger {
+    log(message: string) {
+        console.log(`[LOG]: ${message}`)
+    }
+}
+
+@Injectable()
+class ApiClient {
+    constructor(
+        @Inject(API_URL)
+        private baseUrl: string,
+
+        private logger: Logger
+    ) {}
+
+    get(path: string) {
+        this.logger.log(
+          `GET ${this.baseUrl}${path}`
+        );
+    
+        return {
+          id: 1,
+          name: "Huy",
+        };
+    }
+}
+
+@Injectable()
+class UserRepository {
+    constructor(private api: ApiClient) {}
+
+    findUser(id: number) {
+        return this.api.get(`/users/${id}`);
+    }
+}
+
+@Injectable()
+class UserService {
+    constructor(
+        private repository: UserRepository,
+        private logger: Logger
+    ) {}
+
+    getUser(id: number) {
+        this.logger.log(`Getting user ${id}`);
+    
+        return this.repository.findUser(id);
+    }
+}
+
+const container = new Container()
+
+container.register(API_URL, {
+    useValue: "https://api.example.com"
+})
+container.register(Logger, {
+    useClass: Logger,
+    scope: 'singleton'
+})
+container.register(ApiClient)
+container.register(UserRepository)
+container.register(UserService)
+
+const userService = container.resolve(UserService)

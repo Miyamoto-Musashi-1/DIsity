@@ -57,14 +57,15 @@ class Container {
         if (scope === 'singleton' && owner.instances.has(token)) {
             return owner.instances.get(token);
         }
+        const resolutionContainer = scope === 'singleton' ? owner : this;
         let instance;
         if ("useClass" in provider) {
             const dependencyTokens = this.getDependencies(provider.useClass, provider.dependencies);
-            const dependencies = dependencyTokens.map((dependency) => this.resolveToken(dependency, context));
+            const dependencies = dependencyTokens.map((dependency) => resolutionContainer.resolveToken(dependency, context));
             instance = new provider.useClass(...dependencies);
         }
         else if ("useFactory" in provider) {
-            const dependencies = provider.dependencies?.map((dependency) => this.resolveToken(dependency, context)) ?? [];
+            const dependencies = provider.dependencies?.map((dependency) => resolutionContainer.resolveToken(dependency, context)) ?? [];
             instance = provider.useFactory(...dependencies);
         }
         else {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Transient = exports.Singleton = exports.Inject = exports.Injectable = exports.InjectionToken = exports.Container = void 0;
+exports.Scoped = exports.Transient = exports.Singleton = exports.Inject = exports.Injectable = exports.InjectionToken = exports.Container = void 0;
 require("reflect-metadata");
 var container_1 = require("./container");
 Object.defineProperty(exports, "Container", { enumerable: true, get: function () { return container_1.Container; } });
@@ -14,3 +14,5 @@ var singleton_1 = require("./decorators/singleton");
 Object.defineProperty(exports, "Singleton", { enumerable: true, get: function () { return singleton_1.Singleton; } });
 var transient_1 = require("./decorators/transient");
 Object.defineProperty(exports, "Transient", { enumerable: true, get: function () { return transient_1.Transient; } });
+var scoped_1 = require("./decorators/scoped");
+Object.defineProperty(exports, "Scoped", { enumerable: true, get: function () { return scoped_1.Scoped; } });

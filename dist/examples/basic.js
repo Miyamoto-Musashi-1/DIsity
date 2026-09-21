@@ -16,7 +16,6 @@ const src_1 = require("../src");
 const API_URL = new src_1.InjectionToken("API_URL");
 let Logger = class Logger {
     constructor() {
-        console.log("Creating Logger");
     }
     log(message) {
         console.log(`[LOG]: ${message}`);
@@ -92,16 +91,26 @@ AppService = __decorate([
     (0, src_1.Injectable)(),
     __metadata("design:paramtypes", [Logger])
 ], AppService);
+let EditorService = class EditorService {
+    logger;
+    constructor(logger) {
+        this.logger = logger;
+    }
+};
+EditorService = __decorate([
+    (0, src_1.Injectable)(),
+    (0, src_1.Scoped)(),
+    __metadata("design:paramtypes", [Logger])
+], EditorService);
 const container = new src_1.Container();
-container.register(AppService);
 container.register(Logger);
-const child = container.createChild();
-child.register(Logger, {
+container.register(EditorService);
+const childA = container.createChild();
+childA.register(Logger, {
     useClass: MockLogger,
-    scope: 'singleton'
+    scope: "singleton",
 });
-const childAppService = child.resolve(AppService);
-const rootAppService = container.resolve(AppService);
-console.log("same service:", childAppService === rootAppService);
-console.log("child service logger:", childAppService.logger.constructor.name);
-console.log("root service logger:", rootAppService.logger.constructor.name);
+const rootEditor = container.resolve(EditorService);
+const childEditor = childA.resolve(EditorService);
+console.log(rootEditor.logger.constructor.name);
+console.log(childEditor.logger.constructor.name);

@@ -100,8 +100,10 @@ export class Container {
 
         const scope = this.getScope(provider);
 
-        if (scope === 'singleton' && owner.instances.has(token)) {
-            return owner.instances.get(token)
+        const instanceContainer = this.getInstanceContainer(scope, owner)
+
+        if (instanceContainer?.instances.has(token)) {
+            return instanceContainer.instances.get(token)
         }
 
         const resolutionContainer = scope === 'singleton' ? owner : this
@@ -138,9 +140,9 @@ export class Container {
             throw new Error("Unknow provider")
         }
 
-        if (scope === 'singleton') {
-            owner.instances.set(
-                token, 
+        if (instanceContainer) {
+            instanceContainer.instances.set(
+                token,
                 instance
             )
         }
@@ -159,6 +161,18 @@ export class Container {
         }
 
         return this.parent?.getProviderEntry(token)
+    }
+
+    private getInstanceContainer(scope: Scope, owner: Container): Container | undefined {
+        if (scope === 'singleton') {
+            return owner
+        }
+
+        if (scope === 'scoped') {
+            return this
+        }
+
+        return undefined
     }
 
     private getDependencies(

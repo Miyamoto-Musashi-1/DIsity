@@ -27,6 +27,11 @@ Logger = __decorate([
     (0, src_1.Singleton)(),
     __metadata("design:paramtypes", [])
 ], Logger);
+class MockLogger extends Logger {
+    log(message) {
+        console.log(`[MOCK]: ${message}`);
+    }
+}
 let ApiClient = class ApiClient {
     baseUrl;
     logger;
@@ -86,4 +91,21 @@ container.register(ApiClient);
 container.register(UserRepository);
 container.register(UserService);
 const userService = container.resolve(UserService);
-userService.getUser(1);
+// userService.getUser(1)
+// const child = container.createChild()
+// const rootLogger = container.resolve(Logger)
+// const childLogger = child.resolve(Logger)
+// console.log("same logger:", rootLogger === childLogger)
+// const childA = container.createChild()
+// const childB = container.createChild()
+// const loggerA = childA.resolve(Logger)
+// const loggerB = childB.resolve(Logger)
+// console.log(loggerA === loggerB)
+const child = container.createChild();
+child.register(Logger, {
+    useClass: MockLogger,
+    scope: 'singleton'
+});
+const rootLogger = container.resolve(Logger);
+const childLogger = child.resolve(Logger);
+console.log(rootLogger === childLogger);

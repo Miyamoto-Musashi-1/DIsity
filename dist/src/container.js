@@ -4,8 +4,12 @@ exports.Container = void 0;
 const keys_1 = require("./metadata/keys");
 const types_1 = require("./types");
 class Container {
+    parent;
     registry = new Map();
     instances = new Map();
+    constructor(parent) {
+        this.parent = parent;
+    }
     register(token, provider) {
         this.instances.delete(token);
         if (!provider) {
@@ -25,6 +29,9 @@ class Container {
         };
         return this.resolveToken(token, context);
     }
+    createChild() {
+        return new Container(this);
+    }
     resolveToken(token, context) {
         if (context.chain.includes(token)) {
             throw new Error(this.createCircularDependencyMessage(context.chain, token));
@@ -38,16 +45,17 @@ class Container {
         }
     }
     resolveProvider(token, context) {
-        const provider = this.registry.get(token);
-        if (!provider) {
+        const entry = this.getProviderEntry(token);
+        if (!entry) {
             throw new Error(`No provider found for ${this.tokenToString(token)}`);
         }
+        const { provider, owner } = entry;
         if ("useValue" in provider) {
             return provider.useValue;
         }
         const scope = this.getScope(provider);
-        if (scope === 'singleton' && this.instances.has(token)) {
-            return this.instances.get(token);
+        if (scope === 'singleton' && owner.instances.has(token)) {
+            return owner.instances.get(token);
         }
         let instance;
         if ("useClass" in provider) {
@@ -63,9 +71,19 @@ class Container {
             throw new Error("Unknow provider");
         }
         if (scope === 'singleton') {
-            this.instances.set(token, instance);
+            owner.instances.set(token, instance);
         }
         return instance;
+    }
+    getProviderEntry(token) {
+        const provider = this.registry.get(token);
+        if (provider) {
+            return {
+                provider: provider,
+                owner: this
+            };
+        }
+        return this.parent?.getProviderEntry(token);
     }
     getDependencies(target, explicitDependencies) {
         if (explicitDependencies) {

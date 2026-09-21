@@ -14,6 +14,12 @@ class Logger {
   }
 }
 
+class MockLogger extends Logger {
+  log(message: string): void {
+    console.log(`[MOCK]: ${message}`)
+  }
+}
+
 @Injectable()
 class ApiClient {
   constructor(
@@ -74,4 +80,14 @@ container.register(UserRepository)
 container.register(UserService)
 
 const userService = container.resolve(UserService)
-userService.getUser(1)
+
+const child = container.createChild()
+child.register(Logger, {
+  useClass: MockLogger,
+  scope: 'singleton'
+})
+
+const rootLogger = container.resolve(Logger)
+const childLogger = child.resolve(Logger)
+
+console.log(rootLogger === childLogger)  

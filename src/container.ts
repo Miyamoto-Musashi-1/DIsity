@@ -2,9 +2,16 @@ import { INJECT_TOKENS, INJECTABLE_SCOPE } from './metadata/keys'
 import { ResolutionContext } from './resolution-context'
 import { type Constructor, type Token, type Provider, InjectionToken, Scope } from './types'
 
+interface ProviderEntry<T> {
+    provider: Provider<T>,
+    owner: Container
+}
+
 export class Container {
     private registry = new Map<Token<any>, Provider<any>>()
     private instances = new Map<Token<any>, any>()
+
+    constructor(private readonly parent?: Container) {}
 
     register<T>(target: Constructor<T>): void
     
@@ -44,6 +51,10 @@ export class Container {
         return this.resolveToken(token, context)
     }
 
+    createChild(): Container {
+        return new Container(this)
+    }
+
     private resolveToken<T>(
         token: Token<T>,
         context: ResolutionContext
@@ -73,13 +84,15 @@ export class Container {
         token: Token<T>,
         context: ResolutionContext
     ): T {
-        const provider = this.registry.get(token)
+        const entry = this.getProviderEntry(token)
 
-        if (!provider) {
+        if (!entry) {
             throw new Error(
                 `No provider found for ${this.tokenToString(token)}`
             )
         }
+
+        const {provider, owner} = entry
 
         if ("useValue" in provider) {
             return provider.useValue
@@ -87,8 +100,8 @@ export class Container {
 
         const scope = this.getScope(provider);
 
-        if (scope === 'singleton' && this.instances.has(token)) {
-            return this.instances.get(token)
+        if (scope === 'singleton' && owner.instances.has(token)) {
+            return owner.instances.get(token)
         }
 
         let instance: T
@@ -124,10 +137,26 @@ export class Container {
         }
 
         if (scope === 'singleton') {
-            this.instances.set(token, instance)
+            owner.instances.set(
+                token, 
+                instance
+            )
         }
 
         return instance
+    }
+
+    private getProviderEntry<T>(token: Token<T>): ProviderEntry<T> | undefined {
+        const provider = this.registry.get(token)
+
+        if (provider) {
+            return {
+                provider: provider as Provider<T>,
+                owner: this
+            }
+        }
+
+        return this.parent?.getProviderEntry(token)
     }
 
     private getDependencies(

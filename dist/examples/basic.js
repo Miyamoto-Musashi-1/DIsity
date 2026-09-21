@@ -82,30 +82,26 @@ UserService = __decorate([
     __metadata("design:paramtypes", [UserRepository,
         Logger])
 ], UserService);
+let AppService = class AppService {
+    logger;
+    constructor(logger) {
+        this.logger = logger;
+    }
+};
+AppService = __decorate([
+    (0, src_1.Injectable)(),
+    __metadata("design:paramtypes", [Logger])
+], AppService);
 const container = new src_1.Container();
-container.register(API_URL, {
-    useValue: "https://api.example.com"
-});
+container.register(AppService);
 container.register(Logger);
-container.register(ApiClient);
-container.register(UserRepository);
-container.register(UserService);
-const userService = container.resolve(UserService);
-// userService.getUser(1)
-// const child = container.createChild()
-// const rootLogger = container.resolve(Logger)
-// const childLogger = child.resolve(Logger)
-// console.log("same logger:", rootLogger === childLogger)
-// const childA = container.createChild()
-// const childB = container.createChild()
-// const loggerA = childA.resolve(Logger)
-// const loggerB = childB.resolve(Logger)
-// console.log(loggerA === loggerB)
 const child = container.createChild();
 child.register(Logger, {
     useClass: MockLogger,
     scope: 'singleton'
 });
-const rootLogger = container.resolve(Logger);
-const childLogger = child.resolve(Logger);
-console.log(rootLogger === childLogger);
+const childAppService = child.resolve(AppService);
+const rootAppService = container.resolve(AppService);
+console.log("same service:", childAppService === rootAppService);
+console.log("child service logger:", childAppService.logger.constructor.name);
+console.log("root service logger:", rootAppService.logger.constructor.name);

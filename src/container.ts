@@ -92,7 +92,7 @@ export class Container {
             )
         }
 
-        const {provider, owner} = entry
+        const { provider, owner } = entry
 
         if ("useValue" in provider) {
             return provider.useValue
@@ -103,6 +103,8 @@ export class Container {
         if (scope === 'singleton' && owner.instances.has(token)) {
             return owner.instances.get(token)
         }
+
+        const resolutionContainer = scope === 'singleton' ? owner : this
 
         let instance: T
 
@@ -116,7 +118,7 @@ export class Container {
             const dependencies = 
             dependencyTokens.map(
                 (dependency) => 
-                    this.resolveToken(
+                    resolutionContainer.resolveToken(
                         dependency,
                         context
                     )
@@ -125,7 +127,7 @@ export class Container {
             instance = new provider.useClass(...dependencies)
         } else if ("useFactory" in provider) {
             const dependencies = provider.dependencies?.map(
-                (dependency) => this.resolveToken(
+                (dependency) => resolutionContainer.resolveToken(
                     dependency,
                     context
                 )

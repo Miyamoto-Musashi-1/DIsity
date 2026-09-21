@@ -68,18 +68,17 @@ class UserService {
   }
 }
 
+@Injectable()
+class AppService {
+  constructor(
+    public readonly logger: Logger
+  ) {}
+}
+
 const container = new Container()
 
-container.register(API_URL, {
-    useValue: "https://api.example.com"
-})
-
+container.register(AppService)
 container.register(Logger)
-container.register(ApiClient)
-container.register(UserRepository)
-container.register(UserService)
-
-const userService = container.resolve(UserService)
 
 const child = container.createChild()
 child.register(Logger, {
@@ -87,7 +86,21 @@ child.register(Logger, {
   scope: 'singleton'
 })
 
-const rootLogger = container.resolve(Logger)
-const childLogger = child.resolve(Logger)
+const childAppService = child.resolve(AppService)
 
-console.log(rootLogger === childLogger)  
+const rootAppService = container.resolve(AppService)
+
+console.log(
+  "same service:",
+  childAppService === rootAppService
+)
+
+console.log(
+  "child service logger:",
+  childAppService.logger.constructor.name
+)
+
+console.log(
+  "root service logger:",
+  rootAppService.logger.constructor.name
+)

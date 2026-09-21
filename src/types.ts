@@ -15,7 +15,7 @@ export type Token<T = unknown> =
   | Constructor<T>
   | InjectionToken<T>
 
-export type Scope = "transient" | "singleton"
+export type Scope = "transient" | "singleton" | 'scoped'
 
 export interface ClassProvider<T = unknown> {
   useClass: Constructor<T>;

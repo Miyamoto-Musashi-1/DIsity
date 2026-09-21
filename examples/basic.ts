@@ -1,4 +1,4 @@
-import { Container, InjectionToken, Injectable, Inject, Singleton } from "../src";
+import { Container, InjectionToken, Injectable, Inject, Singleton, Scoped } from "../src";
 
 const API_URL = new InjectionToken<string>("API_URL")
 
@@ -6,7 +6,6 @@ const API_URL = new InjectionToken<string>("API_URL")
 @Singleton()
 class Logger {
   constructor() {
-    console.log("Creating Logger");
   }
 
   log(message: string) {
@@ -75,32 +74,33 @@ class AppService {
   ) {}
 }
 
+@Injectable()
+@Scoped()
+class EditorService {
+  constructor(public readonly logger: Logger) {}
+}
+
 const container = new Container()
 
-container.register(AppService)
-container.register(Logger)
+container.register(Logger);
+container.register(EditorService);
 
-const child = container.createChild()
-child.register(Logger, {
+const childA = container.createChild()
+childA.register(Logger, {
   useClass: MockLogger,
-  scope: 'singleton'
-})
+  scope: "singleton",
+});
 
-const childAppService = child.resolve(AppService)
+const rootEditor =
+  container.resolve(EditorService);
 
-const rootAppService = container.resolve(AppService)
+const childEditor =
+  childA.resolve(EditorService);
 
-console.log(
-  "same service:",
-  childAppService === rootAppService
-)
-
-console.log(
-  "child service logger:",
-  childAppService.logger.constructor.name
-)
-
-console.log(
-  "root service logger:",
-  rootAppService.logger.constructor.name
-)
+  console.log(
+    rootEditor.logger.constructor.name
+  );
+  
+  console.log(
+    childEditor.logger.constructor.name
+  );

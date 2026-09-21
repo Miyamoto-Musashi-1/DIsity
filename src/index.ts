@@ -11,6 +11,7 @@ export { Inject } from './decorators/inject'
 
 export { Singleton } from './decorators/singleton'
 export { Transient } from './decorators/transient'
+export { Scoped } from './decorators/scoped'
 
 export type {
     Constructor,

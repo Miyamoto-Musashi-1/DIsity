@@ -249,4 +249,4 @@ npm run validate:package
 
 ## License
 
-MIT (if the repository uses an MIT license).
+MIT © 2026 Huy Duong

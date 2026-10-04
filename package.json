@@ -4,13 +4,17 @@
   "description": "DIsity is a lightweight inversion of control (IoC) container for TypeScript and JavaScript apps",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@swc/core": "^1.16.2",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
+    "unplugin-swc": "^2.0.0",
     "vitest": "^5.0.1"
   },
   "dependencies": {

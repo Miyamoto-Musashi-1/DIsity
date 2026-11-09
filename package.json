@@ -1,23 +1,34 @@
 {
   "name": "disity",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lightweight dependency injection for TypeScript applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "sideEffects": false,
+  "keywords": [
+    "dependency injection",
+    "decorators",
+    "injectable",
+    "inversion of control"
+  ],
   "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json",
-    "prepack": "npm run typecheck && npm run test:run && npm run build"
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "validate:package": "node scripts/validate-package.mjs",
+    "check": "npm run typecheck && npm run test:run && npm run build && npm run validate:package",
+    "prepack": "npm run check"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Huy Duong",
+  "email": "huyduong.tech@gmail.com",
+  "url": "https://github.com/Miyamoto-Musashi-1/DIsity",
+  "license": "MIT",
   "devDependencies": {
     "@swc/core": "^1.16.2",
     "tsx": "^4.23.13",
